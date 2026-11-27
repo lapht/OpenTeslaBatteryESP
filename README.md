@@ -55,7 +55,7 @@ pio run -e esp32dev -t uploadfs    # web page (LittleFS)
 pio device monitor
 ```
 
-Then join the WiFi network `OpenTeslaBattery-XXXX` with the password printed on the serial monitor at boot (`pio device monitor`; each device generates its own) and open **`http://tesla.lan/`** (or `http://192.168.4.1/`). Most phones open the page on their own as a "sign in to network" screen. See [docs/web-access.md](docs/web-access.md).
+Then join the WiFi network `OpenTeslaBattery-XXXX` (default password `teslabattery`, set your own with `OTB_AP_PASSWORD` at build time) and open **`http://tesla.lan/`** (or `http://192.168.4.1/`). Most phones open the page on their own as a "sign in to network" screen. See [docs/web-access.md](docs/web-access.md).
 
 Full guide: [docs/getting-started.md](docs/getting-started.md).
 

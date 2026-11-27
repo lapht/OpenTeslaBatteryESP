@@ -16,14 +16,16 @@
 #ifndef OTB_AP_SSID_BASE
 #define OTB_AP_SSID_BASE "OpenTeslaBattery"
 #endif
-// Password: by default every device generates its own random password on first
-// boot (stored in NVS, printed on serial at every boot). Define OTB_AP_PASSWORD
-// only if you want a fixed password of your own; never ship a shared one.
-#ifdef OTB_AP_PASSWORD
+// Password: fixed, so you can join from a phone without reading anything off a PC.
+// The default is public (it is in this repo): set your own at build time, e.g.
+//   build_flags = ${env.build_flags} '-DOTB_AP_PASSWORD="my-own-secret"'
+#define OTB_AP_PASSWORD_DEFAULT "teslabattery"
+#ifndef OTB_AP_PASSWORD
+#define OTB_AP_PASSWORD OTB_AP_PASSWORD_DEFAULT
+#endif
 // WiFi.softAP() silently fails with a shorter/longer passphrase: catch it at build time.
 static_assert(sizeof(OTB_AP_PASSWORD) - 1 >= 8 && sizeof(OTB_AP_PASSWORD) - 1 <= 63,
               "OTB_AP_PASSWORD must be 8-63 characters (WPA2)");
-#endif
 
 // Friendly name for the web UI, in addition to http://192.168.4.1/.
 // The ESP runs its own DNS server on the SoftAP, so this name resolves on any

@@ -21,7 +21,7 @@ Please do not open a public issue. Use GitHub's [private vulnerability reporting
 
 The device is a local-only access point with no internet uplink, no OTA update and no write API.
 
-- Each device generates a random SoftAP password on first boot (hardware RNG, ~59 bits, stored in NVS) and prints it on serial at every boot. It is deliberately not derived from the MAC, which is broadcast as the BSSID. Anyone with USB access to the device can read it from serial. A fixed `OTB_AP_PASSWORD` set at build time replaces it: do not publish binaries built with one.
+- The SoftAP password is fixed, `teslabattery` by default, so you can join from a phone without a PC. That default is public (it is in this repository and in the release binaries), so anyone in WiFi range who knows the project can join and read the page. Set your own with `OTB_AP_PASSWORD` at build time. The device has no write API, so a stranger on the access point can read battery data but cannot change anything.
 - The web interface has no authentication beyond WiFi access, and uses plain HTTP: anyone on the access point can read the battery data.
 - In captive portal mode (default) the built-in DNS server answers every name with the device's IP. This only affects clients joined to the access point. See [docs/web-access.md](docs/web-access.md).
 - The serial sniffer (`OTB_SERIAL_SNIFFER=1`) prints every frame, which may include identifying data. Do not share raw logs without removing it.
