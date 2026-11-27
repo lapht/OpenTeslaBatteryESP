@@ -1,0 +1,66 @@
+name: pages
+
+# Builds the project site from site/ and publishes it on GitHub Pages.
+# The latest published release's images are copied next to the page, because
+# browsers can't fetch release assets cross-origin (needed for ESP Web Tools).
+on:
+  push:
+    branches: [main]
+    paths:
+      - "site/**"
+      - "docs/img/**"
+      - "tools/make_manifest.py"
+      - ".github/workflows/pages.yml"
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Assemble site
+        run: |
+          mkdir -p _site/img _site/firmware
+          cp -r site/. _site/
+          cp docs/img/wiring.svg _site/img/wiring.svg
+      - name: Add latest release images and manifest
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          tag=$(gh release view --repo "$GITHUB_REPOSITORY" --json tagName --jq .tagName 2>/dev/null || true)
+          if [ -z "$tag" ]; then
+            echo "No published release yet: the site explains how to build from source."
+            exit 0
+          fi
+          gh release download "$tag" --repo "$GITHUB_REPOSITORY" --dir _site/firmware \
+            --pattern 'openteslabattery-*.bin' --pattern 'SHA256SUMS.txt'
+          (cd _site/firmware && sha256sum -c SHA256SUMS.txt --ignore-missing)
+          python3 tools/make_manifest.py _site/firmware "$tag"
+      - uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
+      - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1

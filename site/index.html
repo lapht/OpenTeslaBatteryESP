@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OpenTeslaBatteryESP: Tesla battery health with an ESP32</title>
+<meta name="description" content="Check your Tesla Model 3/Y battery health with a cheap ESP32. Listen-only, no app, no cloud, open source.">
+<meta property="og:title" content="OpenTeslaBatteryESP">
+<meta property="og:description" content="Check your Tesla's battery health with a cheap ESP32. Listen-only, no app, no cloud, open source.">
+<meta property="og:image" content="https://lapht.github.io/OpenTeslaBatteryESP/img/dashboard.png">
+<meta name="theme-color" content="#0f1115">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='4' y='9' width='22' height='14' rx='3' fill='none' stroke='%233ecf8e' stroke-width='2.5'/%3E%3Crect x='26' y='13' width='3' height='6' rx='1' fill='%233ecf8e'/%3E%3Crect x='7' y='12' width='12' height='8' rx='1' fill='%233ecf8e'/%3E%3C/svg%3E">
+<style>
+  :root {
+    --bg:#f5f6f8; --surface:#ffffff; --fg:#14161b; --muted:#5d6475; --line:#e3e6ec;
+    --accent:#1f9d6a; --accent-fg:#ffffff; --warn-bg:#fff6e5; --warn-fg:#7a4b00; --code:#eef0f4;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg:#0f1115; --surface:#181b22; --fg:#e8eaf0; --muted:#8a91a3; --line:#262a33;
+      --accent:#3ecf8e; --accent-fg:#0f1115; --warn-bg:#2a2112; --warn-fg:#f5c56b; --code:#20242d;
+    }
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin:0; background:var(--bg); color:var(--fg); font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; }
+  a { color:inherit; }
+  .wrap { max-width:1040px; margin:0 auto; padding:0 16px; }
+  header.top { display:flex; align-items:center; justify-content:space-between; padding:16px 0; gap:12px; }
+  .brand { font-weight:700; text-decoration:none; letter-spacing:-.01em; }
+  .btn { display:inline-flex; align-items:center; gap:8px; padding:10px 16px; border-radius:10px; font-weight:600; font-size:.95rem;
+         text-decoration:none; border:1px solid var(--line); background:var(--surface); color:var(--fg); cursor:pointer; }
+  .btn.primary { background:var(--accent); border-color:var(--accent); color:var(--accent-fg); }
+  .btn svg { width:18px; height:18px; flex:none; }
+  .hero { display:grid; grid-template-columns:1.15fr .85fr; gap:40px; align-items:center; padding:32px 0 48px; }
+  .hero h1 { font-size:clamp(2rem, 5vw, 3.1rem); line-height:1.08; letter-spacing:-.025em; margin:0 0 16px; }
+  .hero p.lead { font-size:1.15rem; color:var(--muted); margin:0 0 20px; max-width:34em; }
+  .points { list-style:none; padding:0; margin:0 0 24px; display:grid; gap:8px; }
+  .points li { display:flex; gap:10px; align-items:flex-start; }
+  .points li::before { content:""; width:8px; height:8px; border-radius:50%; background:var(--accent); margin-top:.6em; flex:none; }
+  .cta { display:flex; flex-wrap:wrap; gap:10px; }
+  .phone { justify-self:center; width:min(260px, 72vw); border-radius:36px; padding:10px; background:#05060a; box-shadow:0 20px 50px rgba(0,0,0,.25); }
+  .phone img { display:block; width:100%; height:auto; border-radius:28px; }
+  .caption { text-align:center; color:var(--muted); font-size:.8rem; margin-top:10px; }
+  .banner { background:var(--warn-bg); color:var(--warn-fg); border-radius:12px; padding:14px 16px; margin-bottom:48px; }
+  section { padding:8px 0 48px; }
+  h2 { font-size:1.6rem; letter-spacing:-.015em; margin:0 0 6px; }
+  .sub { color:var(--muted); margin:0 0 24px; }
+  .grid3 { display:grid; grid-template-columns:repeat(3, 1fr); gap:16px; }
+  .card { background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:20px; }
+  .card h3 { margin:0 0 6px; font-size:1.05rem; }
+  .card p { margin:0; color:var(--muted); }
+  .step { font-size:.8rem; font-weight:700; color:var(--accent); text-transform:uppercase; letter-spacing:.06em; margin-bottom:6px; }
+  table { width:100%; border-collapse:collapse; background:var(--surface); border:1px solid var(--line); border-radius:14px; overflow:hidden; }
+  th, td { text-align:left; padding:12px 14px; border-bottom:1px solid var(--line); vertical-align:top; }
+  tr:last-child td { border-bottom:0; }
+  th { font-size:.8rem; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); font-weight:600; }
+  td code, p code, li code { background:var(--code); padding:1px 6px; border-radius:6px; font-size:.9em; }
+  .table-scroll { overflow-x:auto; }
+  .flash { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  .flash > *, .grid3 > *, .hero > * { min-width:0; }
+  pre { background:var(--code); border-radius:10px; padding:14px; overflow-x:auto; font-size:.85rem; margin:12px 0 0; }
+  .muted { color:var(--muted); }
+  .wiring { background:#fff; border:1px solid var(--line); border-radius:14px; padding:12px; }
+  .wiring img { display:block; width:100%; height:auto; }
+  details { background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:14px 16px; margin-bottom:10px; }
+  summary { font-weight:600; cursor:pointer; }
+  details p { color:var(--muted); margin:10px 0 0; }
+  footer { border-top:1px solid var(--line); padding:24px 0 40px; color:var(--muted); font-size:.85rem; }
+  esp-web-install-button [slot="activate"] { font:inherit; }
+  @media (max-width:760px) {
+    .hero { grid-template-columns:1fr; gap:28px; padding-top:16px; }
+    .grid3, .flash { grid-template-columns:1fr; }
+    .hide-sm { display:none; }
+  }
+</style>
+<script type="module" src="https://unpkg.com/esp-web-tools@10.4.0/dist/web/install-button.js?module"></script>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <a class="brand" href="./">OpenTeslaBatteryESP</a>
+    <a class="btn" href="https://github.com/lapht/OpenTeslaBatteryESP">
+      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3 6.1 20.6l1.3-6.6L2.5 9.4l6.6-.8z"/></svg>
+      Star on GitHub
+    </a>
+  </header>
+
+  <div class="hero">
+    <div>
+      <h1>Check your Tesla's battery health with a cheap ESP32.</h1>
+      <p class="lead">Plug it into the car, join its WiFi with your phone, and read what the battery management system reports about your pack.</p>
+      <ul class="points">
+        <li><span><strong>Listen-only.</strong> The CAN controller runs in listen-only mode: it never transmits, not even an acknowledge bit.</span></li>
+        <li><span><strong>No app, no cloud, no account.</strong> The ESP serves the page itself over its own WiFi.</span></li>
+        <li><span><strong>Cheap parts.</strong> An ESP32 board, a CAN transceiver and an OBD-II plug, roughly 15–30 € in total.</span></li>
+      </ul>
+      <div class="cta">
+        <a class="btn primary" href="#flash">Flash from your browser</a>
+        <a class="btn" href="https://github.com/lapht/OpenTeslaBatteryESP">Source code</a>
+      </div>
+    </div>
+    <div>
+      <div class="phone"><img src="img/dashboard.png" width="780" height="1280" alt="The device's web page on a phone: state of health 91.2 %, original capacity 82.0 kWh, current full pack 74.8 kWh"></div>
+      <div class="caption">The page served by the device. Demo data, not from a real car.</div>
+    </div>
+  </div>
+
+  <div class="banner"><strong>Early development.</strong> The firmware builds and is unit tested, but the battery signals have <strong>not been validated on a real car yet</strong>. Don't trust the numbers until they are. Have a Model 3 or Y? <a href="https://github.com/lapht/OpenTeslaBatteryESP/issues/new?template=car_validation.yml">Help validate it</a>.</div>
+
+  <section id="how">
+    <h2>How it works</h2>
+    <p class="sub">The battery management system already broadcasts its own capacity estimate on the car's CAN bus. The device just listens.</p>
+    <div class="grid3">
+      <div class="card"><div class="step">1 · Listen</div><h3>Read the CAN bus</h3><p>An SN65HVD230 transceiver feeds the ESP32's CAN controller, set to listen-only at 500 kbit/s.</p></div>
+      <div class="card"><div class="step">2 · Decode</div><h3>Compute health</h3><p>It decodes the BMS frames for original and current pack energy and computes state of health and degradation.</p></div>
+      <div class="card"><div class="step">3 · Show</div><h3>Open it on your phone</h3><p>Join the <code>OpenTeslaBattery-XXXX</code> WiFi (password <code>teslabattery</code>) and the page opens by itself, or go to <code>http://tesla.lan/</code>.</p></div>
+    </div>
+  </section>
+
+  <section id="parts">
+    <h2>What you need</h2>
+    <p class="sub">Search terms work on AliExpress, Amazon or eBay. Full list with notes in <a href="https://github.com/lapht/OpenTeslaBatteryESP/blob/main/docs/hardware.md">docs/hardware.md</a>.</p>
+    <div class="table-scroll">
+    <table>
+      <thead><tr><th>Part</th><th>Search for</th><th class="hide-sm">Notes</th></tr></thead>
+      <tbody>
+        <tr><td>ESP32 board</td><td><code>ESP32 DevKitC V4 WROOM-32</code></td><td class="hide-sm">Or <code>ESP32-C6-DevKitC-1</code>.</td></tr>
+        <tr><td>CAN transceiver</td><td><code>SN65HVD230 CAN module</code></td><td class="hide-sm">3.3 V. Remove the onboard 120 Ω resistor if it has one.</td></tr>
+        <tr><td>OBD-II plug</td><td><code>OBD2 16 pin male connector pigtail</code></td><td class="hide-sm">EU Model 3/Y from 2019 have an OBD-II port in the driver footwell.</td></tr>
+        <tr><td>Power</td><td>USB power bank, later a <code>DC-DC buck 12V to 5V</code></td><td class="hide-sm">Fuse the 12 V line for a permanent install.</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </section>
+
+  <section id="flash">
+    <h2>Flash the firmware</h2>
+    <p class="sub">Connect the ESP32 with a USB cable and install the latest release. Works in Chrome or Edge on a computer.</p>
+    <div class="flash">
+      <div class="card">
+        <h3>From the browser</h3>
+        <p id="flash-info">Checking for the latest release…</p>
+        <div id="flash-button" hidden style="margin-top:14px">
+          <esp-web-install-button manifest="firmware/manifest.json">
+            <button slot="activate" class="btn primary">Connect and install</button>
+            <span slot="unsupported">Your browser does not support Web Serial. Use Chrome or Edge on a computer, or the command line.</span>
+            <span slot="not-allowed">Browser flashing needs a secure (HTTPS) page.</span>
+          </esp-web-install-button>
+        </div>
+      </div>
+      <div class="card">
+        <h3>From the command line</h3>
+        <p>Download the <code>.bin</code> for your board from the <a href="https://github.com/lapht/OpenTeslaBatteryESP/releases">releases page</a>, then:</p>
+<pre>pip install esptool
+esptool.py --chip esp32 write_flash 0x0 openteslabattery-esp32dev.bin</pre>
+        <p style="margin-top:10px">To set your own WiFi password, <a href="https://github.com/lapht/OpenTeslaBatteryESP/blob/main/docs/getting-started.md">build from source</a> with <code>OTB_AP_PASSWORD</code>.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="wiring">
+    <h2>Wiring</h2>
+    <p class="sub">OBD-II port pins 6 and 14 carry CAN at 500 kbit/s, according to Tesla's own bulletin. Details and the center console fallback in <a href="https://github.com/lapht/OpenTeslaBatteryESP/blob/main/docs/wiring.md">docs/wiring.md</a>.</p>
+    <div class="wiring"><img src="img/wiring.svg" alt="Wiring diagram: OBD-II port to SN65HVD230 transceiver to ESP32" loading="lazy"></div>
+  </section>
+
+  <section id="faq">
+    <h2>FAQ</h2>
+    <details><summary>Can it damage the car or change anything?</summary><p>The CAN controller runs in listen-only mode: it does not transmit frames, acknowledge bits or error frames, and the firmware has no send function. It only reads what is already on the bus.</p></details>
+    <details><summary>Is this Tesla's official battery health test?</summary><p>No. It shows the BMS's own estimate of pack energy, which can drift a few percent with recent charging. The most stable reading comes after a charge to 100 % and some rest.</p></details>
+    <details><summary>Does it work on LFP packs?</summary><p>The values come from the BMS, so they should be there, but the estimate is less reliable on LFP chemistry. The reference car is NCA. LFP detection and a warning are planned.</p></details>
+    <details><summary>Will it drain the 12 V battery?</summary><p>On the OBD-II port, power is only on while the car is awake. If you power it from an always-on source, unplug it when you are done.</p></details>
+    <details><summary>Which cars are supported?</summary><p>Model 3 first (development car: Model 3 Long Range AWD 2021). Model Y should be similar and is planned for v1.0.</p></details>
+  </section>
+
+  <footer>
+    Open source under the MIT license. Not affiliated with, endorsed by or connected to Tesla, Inc. Tesla, Model 3 and Model Y are trademarks of Tesla, Inc. Community reverse-engineered data, provided as is, without warranty. Use at your own risk.
+  </footer>
+</div>
+<script>
+  // The Pages workflow copies the latest release into firmware/. Before the first
+  // release there is no manifest, so explain that instead of showing a dead button.
+  fetch('firmware/manifest.json', { cache: 'no-store' })
+    .then(r => r.ok ? r.json() : Promise.reject())
+    .then(m => {
+      document.getElementById('flash-info').textContent =
+        'Installs version ' + m.version + ' (ESP32 and ESP32-C6, detected automatically). This erases the board.';
+      document.getElementById('flash-button').hidden = false;
+    })
+    .catch(() => {
+      document.getElementById('flash-info').innerHTML =
+        'No release has been published yet. Until then, build from source: see <a href="https://github.com/lapht/OpenTeslaBatteryESP/blob/main/docs/getting-started.md">getting started</a>.';
+    });
+</script>
+</body>
+</html>

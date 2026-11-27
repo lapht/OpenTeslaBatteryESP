@@ -1,5 +1,7 @@
 # OpenTeslaBatteryESP
 
+**Site:** https://lapht.github.io/OpenTeslaBatteryESP/
+
 Open-source, **read-only** ESP32 firmware that listens to a Tesla's CAN bus, decodes the battery management system (BMS) frames and shows **battery health** (state of health, degradation, capacity) on a web page served by the ESP itself. Connect your phone to the ESP's WiFi and open the page. No app, no cloud, no Tesla account, and nothing is ever written to the bus.
 
 > **Status: early development.** The firmware skeleton builds and the decoders have unit tests, but **nothing has been validated on a real car yet**. Do not trust the numbers until the [MVP milestone](https://github.com/lapht/OpenTeslaBatteryESP/milestones) is closed.
@@ -20,7 +22,8 @@ Commercial "Tesla boxes" cost hundreds of euros and promise unlocks that mostly 
 | Serial CAN sniffer + log summary tool | implemented |
 | Brick voltages, spread, range, cycles, live charts | planned (v0.2) |
 | Deep sleep, history | planned (v0.4) |
-| Model Y, browser flashing | planned (v1.0) |
+| Project site with browser flashing (ESP Web Tools) | implemented, live after the first release |
+| Model Y | planned (v1.0) |
 
 ## How it works
 
