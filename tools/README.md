@@ -26,3 +26,11 @@ python3 tools/merge_bin.py .pio/build/esp32dev/flash_layout.json dist/openteslab
 ```
 
 CI builds these on every run and, on a `v*` tag, attaches them with `SHA256SUMS.txt` to a draft release.
+
+## social_preview.html
+
+Source of `site/img/social-preview.png` (1280×640), used as the site's `og:image` and as the repository's social preview (uploaded by hand in Settings → General → Social preview). Regenerate it after changing `site/img/dashboard.png`:
+
+```bash
+node -e "const {chromium}=require('playwright');(async()=>{const b=await chromium.launch();const p=await b.newPage({viewport:{width:1280,height:640}});await p.goto('file://'+process.cwd()+'/tools/social_preview.html');await p.screenshot({path:'site/img/social-preview.png'});await b.close()})()"
+```

@@ -18,4 +18,5 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versio
 - Project site on GitHub Pages (`site/`, `.github/workflows/pages.yml`) with browser flashing through ESP Web Tools, using the latest release images.
 - Serial sniffer mode and `tools/can_log_summary.py`.
 - Host unit tests, GitHub Actions CI.
+- Social preview image (`site/img/social-preview.png`, source in `tools/social_preview.html`) used as the site's link preview; README header with badges, screenshot and a "Help wanted" section.
 - Documentation, issue and PR templates.
