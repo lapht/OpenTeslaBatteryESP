@@ -24,6 +24,10 @@ CI runs all three on every pull request.
 - Update [docs/can-mapping.md](docs/can-mapping.md) and mark the signal **not validated** unless you include a validation report.
 - Never guess a bit position or scale factor. If the source is unclear, open an issue first.
 
+## Docs and site
+
+A change that affects anything user-visible updates the docs, `CHANGELOG.md` and, if it is mentioned there, the project site in `site/`, in the same PR. The full checklist is in [CLAUDE.md](CLAUDE.md#keep-docs-and-site-in-sync-required).
+
 ## Code style
 
 - C++17, 2-space indent (see `.editorconfig`).
