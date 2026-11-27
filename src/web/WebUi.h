@@ -9,5 +9,6 @@
 class WebUi {
  public:
   using Snapshot = std::function<void(BmsState&, Health&, CanStats&)>;
-  bool begin(const char* ssid, const char* password, Snapshot snapshot);
+  // SSID and password come from loadApCredentials() (per-device by default).
+  bool begin(Snapshot snapshot);
 };

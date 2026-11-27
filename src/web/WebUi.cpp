@@ -10,6 +10,7 @@
 #include <WiFi.h>
 
 #include "../config.h"
+#include "../net/ApCredentials.h"
 
 static AsyncWebServer server(80);
 static DNSServer dns;  // async (AsyncUDP) in Arduino-ESP32 3.x, no loop() call needed
@@ -51,16 +52,23 @@ static void startNameServices(const IPAddress& ip) {
   }
 }
 
-bool WebUi::begin(const char* ssid, const char* password, Snapshot snapshot) {
+bool WebUi::begin(Snapshot snapshot) {
   snapshotFn = snapshot;
   if (!LittleFS.begin(true)) Serial.println("[web] LittleFS mount failed");
 
-  WiFi.mode(WIFI_AP);
-  if (!WiFi.softAP(ssid, password)) return false;
+  WiFi.mode(WIFI_AP);  // RF on first: esp_random() is a true RNG only from here
+  ApCredentials ap = loadApCredentials();
+  if (!WiFi.softAP(ap.ssid.c_str(), ap.password.c_str())) {
+    Serial.println("[web] SoftAP failed to start");
+    return false;
+  }
   IPAddress ip = WiFi.softAPIP();
   startNameServices(ip);
-  Serial.printf("[web] SoftAP '%s' up, open http://%s/ or http://%s/ (mDNS: http://%s.local/)\n", ssid,
-                OTB_DNS_NAME, ip.toString().c_str(), OTB_MDNS_NAME);
+  Serial.printf("[wifi] SSID: %s\n", ap.ssid.c_str());
+  Serial.printf("[wifi] password: %s%s\n", ap.password.c_str(),
+                ap.generated ? "  (unique to this device, kept across updates)" : "  (set at build time)");
+  Serial.printf("[web] open http://%s/ or http://%s/ (mDNS: http://%s.local/)\n", OTB_DNS_NAME,
+                ip.toString().c_str(), OTB_MDNS_NAME);
 
   server.on("/api/status", HTTP_GET, [](AsyncWebServerRequest* req) {
     BmsState bms; Health h; CanStats can;
