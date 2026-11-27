@@ -37,8 +37,9 @@ Details in [docs/architecture.md](docs/architecture.md).
 
 - ESP32 DevKitC (classic) or ESP32-C6 DevKitC-1
 - SN65HVD230 CAN transceiver module (3.3 V)
-- Model 3 diagnostic harness exposing Vehicle CAN
-- 12 V → 5 V supply or USB power
+- OBD-II male plug with open wires (EU Model 3/Y 2019+ have an OBD-II port in the driver footwell)
+- 12 V → 5 V supply or USB power bank
+- Optional: Model 3/Y center console adapter (only if the OBD-II port does not carry the battery frames)
 
 See [docs/hardware.md](docs/hardware.md) and [docs/wiring.md](docs/wiring.md).
 
