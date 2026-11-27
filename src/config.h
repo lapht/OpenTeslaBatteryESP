@@ -10,16 +10,20 @@
 #define OTB_CAN_RX_PIN 4
 #endif
 
-// SoftAP settings. Change the password before using it anywhere public.
-#ifndef OTB_AP_SSID
-#define OTB_AP_SSID "OpenTeslaBattery"
+// SoftAP settings.
+// SSID: define OTB_AP_SSID to force a fixed name. By default the name is
+// OTB_AP_SSID_BASE + "-XXXX" (last two bytes of the MAC), e.g. "OpenTeslaBattery-3FA2".
+#ifndef OTB_AP_SSID_BASE
+#define OTB_AP_SSID_BASE "OpenTeslaBattery"
 #endif
-#ifndef OTB_AP_PASSWORD
-#define OTB_AP_PASSWORD "teslabattery"  // 8-63 chars, WPA2
-#endif
+// Password: by default every device generates its own random password on first
+// boot (stored in NVS, printed on serial at every boot). Define OTB_AP_PASSWORD
+// only if you want a fixed password of your own; never ship a shared one.
+#ifdef OTB_AP_PASSWORD
 // WiFi.softAP() silently fails with a shorter/longer passphrase: catch it at build time.
 static_assert(sizeof(OTB_AP_PASSWORD) - 1 >= 8 && sizeof(OTB_AP_PASSWORD) - 1 <= 63,
               "OTB_AP_PASSWORD must be 8-63 characters (WPA2)");
+#endif
 
 // Friendly name for the web UI, in addition to http://192.168.4.1/.
 // The ESP runs its own DNS server on the SoftAP, so this name resolves on any

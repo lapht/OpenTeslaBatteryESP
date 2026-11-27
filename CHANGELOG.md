@@ -11,6 +11,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versio
 - SOH and degradation calculation with staleness check.
 - WiFi SoftAP, mobile web page, `/api/status` JSON endpoint.
 - Friendly URL `http://tesla.lan/` via a DNS server on the SoftAP, captive portal redirect so phones open the page on their own, mDNS `tesla.local`.
+- Per-device SoftAP: SSID `OpenTeslaBattery-XXXX` from the MAC, random password generated on first boot, stored in NVS and printed on serial (no shared default password).
 - Serial sniffer mode and `tools/can_log_summary.py`.
 - Host unit tests, GitHub Actions CI.
 - Documentation, issue and PR templates.

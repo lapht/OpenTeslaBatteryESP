@@ -42,7 +42,7 @@ void setup() {
     xTaskCreate(canTask, "can", 4096, nullptr, 5, nullptr);
   }
 
-  web.begin(OTB_AP_SSID, OTB_AP_PASSWORD, [](BmsState& bms, Health& h, CanStats& stats) {
+  web.begin([](BmsState& bms, Health& h, CanStats& stats) {
     portENTER_CRITICAL(&stateLock);
     bms = decoder.state();
     portEXIT_CRITICAL(&stateLock);
