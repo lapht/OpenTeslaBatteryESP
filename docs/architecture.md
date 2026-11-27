@@ -9,6 +9,7 @@
 └────────────┘   └──────────────┘   │                          HealthCalculator ◄───────┘         │
                                     │                                 │                           │
                                     │  WiFi SoftAP ◄── AsyncWebServer: /  and  /api/status        │
+                                    │      └─ DNS :53 (tesla.lan, captive) + mDNS (tesla.local)   │
                                     └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -22,7 +23,7 @@ src/
   bms/Signal.h             DBC little-endian signal extraction
   bms/BmsDecoder.*         CAN ID -> physical values (BmsState)
   bms/HealthCalculator.*   SOH and derived figures
-  web/WebUi.*              SoftAP, HTTP server, JSON API
+  web/WebUi.*              SoftAP, HTTP server, JSON API, DNS/captive portal, mDNS
 data/index.html            single-file mobile web page (LittleFS)
 test/                      host-side unit tests (pio test -e native)
 tools/                     host scripts (log analysis)
@@ -39,6 +40,7 @@ hardware/                  hardware notes, future PCB
 | Concurrency | Dedicated FreeRTOS task for CAN RX, state guarded by a spinlock | Keeps the web server from blocking frame reception. |
 | Decoding | Hand-written decoders citing DBC lines | Small footprint, easy to audit. A DBC-driven generator may come later. |
 | UI | Static HTML + JSON polling every 2 s | Simple and robust. WebSocket push is planned for v0.2. |
+| Friendly URL | Own DNS server on the SoftAP (wildcard, captive portal) + mDNS | Works on every OS without setup. See [web-access.md](web-access.md). |
 | Storage | LittleFS for the web page | Page can be edited without recompiling the firmware. |
 
 ## Data flow and staleness

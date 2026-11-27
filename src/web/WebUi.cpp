@@ -3,15 +3,52 @@
 #include <Arduino.h>
 #include <ArduinoJson.h>
 #include <AsyncTCP.h>
+#include <DNSServer.h>
 #include <ESPAsyncWebServer.h>
+#include <ESPmDNS.h>
 #include <LittleFS.h>
 #include <WiFi.h>
 
+#include "../config.h"
+
 static AsyncWebServer server(80);
+static DNSServer dns;  // async (AsyncUDP) in Arduino-ESP32 3.x, no loop() call needed
 static WebUi::Snapshot snapshotFn;
 
 static void addValue(JsonObject o, const char* key, const Value& v) {
   if (v.valid) o[key] = v.v; else o[key] = nullptr;
+}
+
+#if OTB_CAPTIVE_PORTAL
+// True if the request was addressed to this device (friendly name, mDNS name or IP).
+static bool isOwnHost(AsyncWebServerRequest* req) {
+  String host = req->host();
+  int colon = host.indexOf(':');
+  if (colon >= 0) host = host.substring(0, colon);
+  host.toLowerCase();
+  if (host.isEmpty()) return true;
+  if (host == OTB_DNS_NAME) return true;
+  if (host == String(OTB_MDNS_NAME) + ".local") return true;
+  return host == WiFi.softAPIP().toString();
+}
+#endif
+
+static void startNameServices(const IPAddress& ip) {
+#if OTB_CAPTIVE_PORTAL
+  // Wildcard: every A query gets our IP, which makes phones detect a captive portal.
+  dns.setErrorReplyCode(DNSReplyCode::NoError);
+  bool ok = dns.start(53, "*", ip);
+#else
+  dns.setErrorReplyCode(DNSReplyCode::NonExistentDomain);
+  bool ok = dns.start(53, OTB_DNS_NAME, ip);
+#endif
+  if (!ok) Serial.println("[web] DNS server failed to start");
+
+  if (MDNS.begin(OTB_MDNS_NAME)) {
+    MDNS.addService("http", "tcp", 80);
+  } else {
+    Serial.println("[web] mDNS failed to start");
+  }
 }
 
 bool WebUi::begin(const char* ssid, const char* password, Snapshot snapshot) {
@@ -20,7 +57,10 @@ bool WebUi::begin(const char* ssid, const char* password, Snapshot snapshot) {
 
   WiFi.mode(WIFI_AP);
   if (!WiFi.softAP(ssid, password)) return false;
-  Serial.printf("[web] SoftAP '%s' up, open http://%s/\n", ssid, WiFi.softAPIP().toString().c_str());
+  IPAddress ip = WiFi.softAPIP();
+  startNameServices(ip);
+  Serial.printf("[web] SoftAP '%s' up, open http://%s/ or http://%s/ (mDNS: http://%s.local/)\n", ssid,
+                OTB_DNS_NAME, ip.toString().c_str(), OTB_MDNS_NAME);
 
   server.on("/api/status", HTTP_GET, [](AsyncWebServerRequest* req) {
     BmsState bms; Health h; CanStats can;
@@ -53,7 +93,17 @@ bool WebUi::begin(const char* ssid, const char* password, Snapshot snapshot) {
   });
 
   server.serveStatic("/", LittleFS, "/").setDefaultFile("index.html");
-  server.onNotFound([](AsyncWebServerRequest* req) { req->send(404, "text/plain", "Not found"); });
+  server.onNotFound([](AsyncWebServerRequest* req) {
+#if OTB_CAPTIVE_PORTAL
+    // OS connectivity probes (/generate_204, /hotspot-detect.html, /connecttest.txt...)
+    // arrive with a foreign Host: redirect them so the phone opens our page.
+    if (!isOwnHost(req)) {
+      req->redirect("http://" OTB_DNS_NAME "/");
+      return;
+    }
+#endif
+    req->send(404, "text/plain", "Not found");
+  });
   server.begin();
   return true;
 }
