@@ -15,6 +15,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versio
 - Web page shows stale values greyed with their age, and tells apart "device unreachable", "no CAN traffic" and "traffic but no battery frames". `/api/status` adds `bms_age_ms`, `link`, `stale_ms` and frame ages.
 - TWAI hardware acceptance filter for the battery IDs, narrowed while battery frames arrive and opened again when they stop (`OTB_CAN_HW_FILTER`).
 - Single flashable image per board (`pio run -t flashlayout` + `tools/merge_bin.py`), built in CI; on a `v*` tag CI creates a draft release with the images, `SHA256SUMS.txt` and esptool flash instructions.
+- Project site on GitHub Pages (`site/`, `.github/workflows/pages.yml`) with browser flashing through ESP Web Tools, using the latest release images.
 - Serial sniffer mode and `tools/can_log_summary.py`.
 - Host unit tests, GitHub Actions CI.
 - Documentation, issue and PR templates.
