@@ -9,7 +9,7 @@ pip install esptool
 esptool.py --chip esp32 --baud 460800 write_flash 0x0 openteslabattery-esp32dev.bin
 ```
 
-Then go to [step 3](#3-check-the-serial-output) to read the WiFi password. Writing the full image erases the stored settings, so the device generates a new WiFi password.
+Then join the WiFi `OpenTeslaBattery-XXXX` with password `teslabattery` (see [step 5](#5-open-the-page)). Release binaries always use this public default: build from source to set your own.
 
 ## 1. Install the toolchain
 
@@ -34,7 +34,7 @@ pio run -e esp32c6 -t upload
 pio run -e esp32c6 -t uploadfs
 ```
 
-`upload` flashes the firmware, `uploadfs` flashes the web page from `data/` into LittleFS. Both are needed on first install. Neither touches the stored WiFi password.
+`upload` flashes the firmware, `uploadfs` flashes the web page from `data/` into LittleFS. Both are needed on first install.
 
 To build the same single image the releases ship (needs `pip install esptool`):
 
@@ -55,7 +55,7 @@ Expected at boot:
 OpenTeslaBatteryESP - read-only (TWAI listen-only)
 [can] listen-only @500k, TX=5 RX=4
 [wifi] SSID: OpenTeslaBattery-3FA2
-[wifi] password: k7mq-xr4d-9tzw  (unique to this device, kept across updates)
+[wifi] password: teslabattery  (public default, set OTB_AP_PASSWORD to change it)
 [web] open http://tesla.lan/ or http://192.168.4.1/ (mDNS: http://tesla.local/)
 [can] rx=0 missed=0 buserr=0
 ```
@@ -68,7 +68,7 @@ Wire as described in [wiring.md](wiring.md), plug the harness in, wake the car (
 
 ## 5. Open the page
 
-Join the WiFi `OpenTeslaBattery-XXXX` with the password printed on serial at boot (see above; write it down, or stick it on the device). Every device generates its own random password on first boot and keeps it across firmware updates; `pio run -t erase` followed by a new upload generates a new one. Most phones then show a "Sign in to network" prompt that opens the page directly. Otherwise open one of:
+Join the WiFi `OpenTeslaBattery-XXXX` with password `teslabattery` (or the one you set with `OTB_AP_PASSWORD`). The `XXXX` comes from the device MAC, so two devices never share a name; it is also printed on serial at boot. Most phones then show a "Sign in to network" prompt that opens the page directly. Otherwise open one of:
 
 - `http://tesla.lan/` (type the `http://` and the trailing `/`, or the browser may search for it)
 - `http://192.168.4.1/` (always works)
@@ -85,7 +85,7 @@ Settings live in `src/config.h` and can be overridden per environment through `b
 | `OTB_CAN_TX_PIN` / `OTB_CAN_RX_PIN` | 5 / 4 | Transceiver GPIOs |
 | `OTB_AP_SSID_BASE` | `OpenTeslaBattery` | SoftAP name, the device adds `-XXXX` from its MAC |
 | `OTB_AP_SSID` | unset | Fixed SoftAP name, overrides the above |
-| `OTB_AP_PASSWORD` | unset | Fixed password (8-63 chars). Unset = random per-device password stored in NVS |
+| `OTB_AP_PASSWORD` | `teslabattery` | WiFi password, 8-63 chars. The default is public: set your own |
 | `OTB_DNS_NAME` | `tesla.lan` | Friendly name served by the built-in DNS. Lowercase |
 | `OTB_MDNS_NAME` | `tesla` | mDNS name, reachable as `<name>.local` |
 | `OTB_CAPTIVE_PORTAL` | 1 | 1 answers every DNS name and redirects to the page, 0 answers only `OTB_DNS_NAME` |

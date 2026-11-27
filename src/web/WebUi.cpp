@@ -68,7 +68,7 @@ bool WebUi::begin(Snapshot snapshot) {
   snapshotFn = snapshot;
   if (!LittleFS.begin(true)) Serial.println("[web] LittleFS mount failed");
 
-  WiFi.mode(WIFI_AP);  // RF on first: esp_random() is a true RNG only from here
+  WiFi.mode(WIFI_AP);
   ApCredentials ap = loadApCredentials();
   if (!WiFi.softAP(ap.ssid.c_str(), ap.password.c_str())) {
     Serial.println("[web] SoftAP failed to start");
@@ -78,7 +78,7 @@ bool WebUi::begin(Snapshot snapshot) {
   startNameServices(ip);
   Serial.printf("[wifi] SSID: %s\n", ap.ssid.c_str());
   Serial.printf("[wifi] password: %s%s\n", ap.password.c_str(),
-                ap.generated ? "  (unique to this device, kept across updates)" : "  (set at build time)");
+                ap.customPassword ? "" : "  (public default, set OTB_AP_PASSWORD to change it)");
   Serial.printf("[web] open http://%s/ or http://%s/ (mDNS: http://%s.local/)\n", OTB_DNS_NAME,
                 ip.toString().c_str(), OTB_MDNS_NAME);
 

@@ -22,6 +22,6 @@ esptool.py --chip esp32 --baud 460800 write_flash 0x0 openteslabattery-esp32dev.
 esptool.py --chip esp32c6 --baud 460800 write_flash 0x0 openteslabattery-esp32c6.bin
 ```
 
-Add `--port /dev/ttyUSB0` (Linux), `/dev/cu.usbserial-*` (macOS) or `COM3` (Windows) if esptool does not find the board. A fresh flash generates a new WiFi password: open the serial monitor at 115200 baud to read it.
+Add `--port /dev/ttyUSB0` (Linux), `/dev/cu.usbserial-*` (macOS) or `COM3` (Windows) if esptool does not find the board. Then join the WiFi `OpenTeslaBattery-XXXX` with password `teslabattery`. That default is public: to use your own, build from source with `OTB_AP_PASSWORD`.
 
 Changes: see [CHANGELOG.md](https://github.com/lapht/OpenTeslaBatteryESP/blob/main/CHANGELOG.md).

@@ -1,6 +1,6 @@
 # Web access
 
-The page is reachable at three addresses once you join the `OpenTeslaBattery-XXXX` WiFi (password printed on serial at boot):
+The page is reachable at three addresses once you join the `OpenTeslaBattery-XXXX` WiFi (default password `teslabattery`):
 
 | Address | How it resolves | Works on |
 |---|---|---|
