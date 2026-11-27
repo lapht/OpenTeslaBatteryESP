@@ -19,6 +19,10 @@
   .status { font-size:.8rem; color:var(--muted); }
   .dot { display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:6px; background:var(--bad); }
   .dot.ok { background:var(--ok); }
+  .dot.warn { background:var(--warn); }
+  .stale { opacity:.45; }
+  .age { color:var(--muted); font-size:.75rem; margin-top:4px; min-height:1em; }
+  .hint { color:var(--muted); font-size:.8rem; margin-top:6px; line-height:1.4; }
   footer { color:var(--muted); font-size:.75rem; margin-top:16px; line-height:1.4; }
 </style>
 </head>
@@ -31,36 +35,85 @@
     <div class="status" id="deg">Waiting for BMS frames (0x292, 0x352)...</div>
   </div>
   <div class="grid">
-    <div class="card"><div class="label">Original capacity</div><div class="val" id="orig">--</div></div>
-    <div class="card"><div class="label">Current full pack</div><div class="val" id="cur">--</div></div>
-    <div class="card"><div class="label">Energy remaining</div><div class="val" id="rem">--</div></div>
-    <div class="card"><div class="label">Buffer</div><div class="val" id="buf">--</div></div>
+    <div class="card"><div class="label">Original capacity</div><div class="val" id="orig">--</div><div class="age" id="orig-age"></div></div>
+    <div class="card"><div class="label">Current full pack</div><div class="val" id="cur">--</div><div class="age" id="cur-age"></div></div>
+    <div class="card"><div class="label">Energy remaining</div><div class="val" id="rem">--</div><div class="age" id="rem-age"></div></div>
+    <div class="card"><div class="label">Buffer</div><div class="val" id="buf">--</div><div class="age" id="buf-age"></div></div>
   </div>
-  <div class="card status"><span class="dot" id="dot"></span><span id="can">No data</span></div>
+  <div class="card status">
+    <div><span class="dot" id="dot"></span><span id="link">Connecting...</span></div>
+    <div class="hint" id="hint"></div>
+    <div class="hint" id="can"></div>
+  </div>
   <footer>Read-only, community reverse-engineered data. Not Tesla's official battery test.
   Not affiliated with Tesla, Inc. Unplug the device after use to avoid draining the 12 V battery.</footer>
 </main>
 <script>
 const $ = id => document.getElementById(id);
-const kwh = v => v == null ? '--' : v.toFixed(1) + ' kWh';
+const kwh = v => v.toFixed(1) + ' kWh';
+const ago = ms => ms < 1500 ? 'just now' : ms < 90000 ? Math.round(ms / 1000) + ' s ago'
+  : ms < 5400000 ? Math.round(ms / 60000) + ' min ago' : Math.round(ms / 3600000) + ' h ago';
+const LINK = {
+  ok: ['ok', 'Receiving battery data', ''],
+  no_battery_frames: ['warn', 'CAN traffic, but no battery frames',
+    'The bus is active but 0x292/0x352 are missing. Check that you are on Vehicle CAN, not another bus.'],
+  no_traffic: ['', 'No CAN traffic',
+    'Check the wiring and wake the car (open a door or use the app).'],
+};
+let lastSoh = null;  // last valid SOH, shown greyed when it goes stale
+
+// Show a value, greyed with its age once older than stale_ms; "--" if never seen.
+function show(id, v, age, staleMs, fmt) {
+  const el = $(id), ageEl = $(id + '-age');
+  if (v == null) { el.textContent = '--'; el.classList.remove('stale'); ageEl.textContent = ''; return; }
+  el.textContent = fmt(v);
+  const stale = age > staleMs;
+  el.classList.toggle('stale', stale);
+  ageEl.textContent = stale ? 'stale, updated ' + ago(age) : '';
+}
+
+function unreachable() {
+  $('dot').className = 'dot';
+  $('link').textContent = 'Device not reachable';
+  $('hint').textContent = 'Make sure your phone is still on the OpenTeslaBattery WiFi.';
+  $('can').textContent = '';
+  for (const id of ['soh', 'orig', 'cur', 'rem', 'buf']) $(id).classList.add('stale');
+}
+
 async function tick() {
+  let d;
   try {
-    const r = await fetch('/api/status', { cache: 'no-store' });
-    const d = await r.json();
-    if (d.health.valid) {
-      $('soh').textContent = d.health.soh_pct.toFixed(1) + '%';
-      $('deg').textContent = 'Degradation ' + d.health.degradation_pct.toFixed(1) + '%';
-    }
-    $('orig').textContent = kwh(d.bms.beginning_of_life_kwh);
-    $('cur').textContent = kwh(d.bms.nominal_full_pack_kwh);
-    $('rem').textContent = kwh(d.bms.nominal_remaining_kwh);
-    $('buf').textContent = kwh(d.bms.energy_buffer_kwh);
-    $('can').textContent = `CAN rx ${d.can.received} · missed ${d.can.missed} · errors ${d.can.bus_errors}`;
-    $('dot').classList.toggle('ok', d.can.received > 0);
-  } catch (e) {
-    $('can').textContent = 'Device not reachable';
-    $('dot').classList.remove('ok');
+    const opts = { cache: 'no-store' };
+    if (window.AbortSignal && AbortSignal.timeout) opts.signal = AbortSignal.timeout(3000);
+    const r = await fetch('/api/status', opts);
+    d = await r.json();
+  } catch (e) { unreachable(); return; }
+
+  const b = d.bms, a = d.bms_age_ms, st = d.stale_ms;
+  if (d.health.valid) {
+    lastSoh = { soh: d.health.soh_pct, deg: d.health.degradation_pct, at: Date.now() };
+    $('soh').textContent = lastSoh.soh.toFixed(1) + '%';
+    $('soh').classList.remove('stale');
+    $('deg').textContent = 'Degradation ' + lastSoh.deg.toFixed(1) + '%';
+  } else if (lastSoh) {
+    $('soh').classList.add('stale');
+    $('deg').textContent = 'Stale: last reading ' + ago(Date.now() - lastSoh.at);
+  } else {
+    $('soh').textContent = '--';
+    $('deg').textContent = 'Waiting for BMS frames (0x292, 0x352)...';
   }
+  show('orig', b.beginning_of_life_kwh, a.beginning_of_life_kwh, st, kwh);
+  show('cur', b.nominal_full_pack_kwh, a.nominal_full_pack_kwh, st, kwh);
+  show('rem', b.nominal_remaining_kwh, a.nominal_remaining_kwh, st, kwh);
+  show('buf', b.energy_buffer_kwh, a.energy_buffer_kwh, st, kwh);
+
+  const [cls, text, hint] = LINK[d.link] || LINK.no_traffic;
+  $('dot').className = 'dot ' + cls;
+  $('link').textContent = text;
+  $('hint').textContent = hint;
+  const last = d.can.last_frame_age_ms == null ? 'never' : ago(d.can.last_frame_age_ms);
+  $('can').textContent = `CAN rx ${d.can.received} (last ${last}) · battery frames ${d.can.battery_frames}` +
+    ` · missed ${d.can.missed} · errors ${d.can.bus_errors}`;
 }
 tick(); setInterval(tick, 2000);
 </script>

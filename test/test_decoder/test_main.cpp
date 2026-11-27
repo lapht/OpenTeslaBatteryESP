@@ -58,6 +58,17 @@ void test_unknown_id_ignored() {
   uint8_t d[8] = {0};
   BmsDecoder dec;
   TEST_ASSERT_FALSE(dec.decode(0x123, d, 8, 100));
+  TEST_ASSERT_EQUAL_UINT32(0, dec.state().batteryFrames);
+}
+
+void test_battery_frames_counted_even_if_sna() {
+  uint8_t d[8] = {0};
+  put(d, 40, 10, 1023);  // SNA
+  BmsDecoder dec;
+  dec.decode(0x292, d, 8, 100);
+  dec.decode(0x352, d, 8, 250);
+  TEST_ASSERT_EQUAL_UINT32(2, dec.state().batteryFrames);
+  TEST_ASSERT_EQUAL_UINT32(250, dec.state().lastBatteryFrameMs);
 }
 
 int main() {
@@ -68,5 +79,6 @@ int main() {
   RUN_TEST(test_decode_292_sna);
   RUN_TEST(test_decode_352);
   RUN_TEST(test_unknown_id_ignored);
+  RUN_TEST(test_battery_frames_counted_even_if_sna);
   return UNITY_END();
 }

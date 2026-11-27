@@ -17,6 +17,7 @@ struct CanStats {
   uint32_t received;
   uint32_t missed;      // RX queue overruns
   uint32_t busErrors;
+  uint32_t lastFrameMs;  // meaningful only if received > 0
 };
 
 class CanReader {

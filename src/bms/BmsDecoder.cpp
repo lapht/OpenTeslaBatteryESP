@@ -18,10 +18,13 @@ void set(Value& dst, uint32_t raw, uint32_t sna, float scale, uint32_t nowMs) {
 
 bool BmsDecoder::decode(uint32_t id, const uint8_t* data, uint8_t dlc, uint32_t nowMs) {
   switch (id) {
-    case ID_BMS_SOC: decode292(data, dlc, nowMs); return true;
-    case ID_BMS_ENERGY_STATUS: decode352(data, dlc, nowMs); return true;
+    case ID_BMS_SOC: decode292(data, dlc, nowMs); break;
+    case ID_BMS_ENERGY_STATUS: decode352(data, dlc, nowMs); break;
     default: return false;
   }
+  state_.batteryFrames++;
+  state_.lastBatteryFrameMs = nowMs;
+  return true;
 }
 
 // DBC: SG_ BattBeginningOfLifeEnergy292 : 40|10@1+ (0.1,0) "kWh", SNA=1023
