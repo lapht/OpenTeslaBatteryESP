@@ -1,0 +1,20 @@
+name: Feature request
+description: Suggest a new feature or signal to decode
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This project is **read-only**. Requests that require transmitting on the CAN bus
+        (unlocks, injection, configuration changes) will be closed.
+  - type: textarea
+    id: what
+    attributes:
+      label: What and why
+    validations:
+      required: true
+  - type: textarea
+    id: refs
+    attributes:
+      label: References
+      description: DBC signal names, CAN IDs, links.

@@ -1,0 +1,38 @@
+name: Car validation report
+description: Report decoded values from a real car, compared with a reference tool
+labels: [validation]
+body:
+  - type: input
+    id: car
+    attributes:
+      label: Car (model, trim, year, battery chemistry)
+      placeholder: Model 3 LR AWD 2021, NCA
+    validations:
+      required: true
+  - type: input
+    id: software
+    attributes:
+      label: Car software version
+  - type: input
+    id: harness
+    attributes:
+      label: Harness and pins used
+  - type: textarea
+    id: values
+    attributes:
+      label: Values
+      description: Same moment, this firmware vs reference (e.g. Scan My Tesla).
+      value: |
+        | Signal | OpenTeslaBatteryESP | Reference | Tool |
+        |--------|---------------------|-----------|------|
+        | Beginning-of-life energy (kWh) | | | |
+        | Nominal full pack (kWh) | | | |
+        | SOH (%) | | | |
+    validations:
+      required: true
+  - type: textarea
+    id: frames
+    attributes:
+      label: Raw frames (optional)
+      description: Sniffer output for 0x292 and 0x352.
+      render: text
