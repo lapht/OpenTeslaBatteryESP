@@ -34,6 +34,7 @@ bool CanReader::read(CanFrame& out, uint32_t timeoutMs) {
   for (uint8_t i = 0; i < out.dlc; i++) out.data[i] = msg.data[i];
   out.timestampMs = millis();
   stats_.received++;
+  stats_.lastFrameMs = out.timestampMs;
 
   twai_status_info_t s;
   if (twai_get_status_info(&s) == ESP_OK) {

@@ -55,12 +55,19 @@ Each decoded value carries `valid` and `lastSeenMs`. Values equal to the DBC "SN
 {
   "health": { "valid": true, "soh_pct": 90.0, "degradation_pct": 10.0, "original_kwh": 80.0, "current_kwh": 72.0 },
   "bms": { "beginning_of_life_kwh": 80.0, "nominal_full_pack_kwh": 72.0, "nominal_remaining_kwh": 40.0, "energy_buffer_kwh": 3.2, "soc_ui_pct": 50.0 },
-  "can": { "received": 12345, "missed": 0, "bus_errors": 0 },
+  "bms_age_ms": { "beginning_of_life_kwh": 180, "nominal_full_pack_kwh": 90, "nominal_remaining_kwh": 90, "energy_buffer_kwh": 90, "soc_ui_pct": 180 },
+  "can": { "received": 12345, "missed": 0, "bus_errors": 0, "last_frame_age_ms": 3,
+           "battery_frames": 300, "last_battery_frame_age_ms": 90 },
+  "link": "ok",
+  "stale_ms": 5000,
   "uptime_ms": 60000
 }
 ```
 
-Example numbers above are illustrative, not real car data. Fields that were never received are `null`.
+Example numbers above are illustrative, not real car data. Fields that were never received (or whose last value was SNA) are `null`, and so is their age.
+
+- `bms_age_ms`: milliseconds since each value was last updated. The page greys out values older than `stale_ms` and shows how old they are.
+- `link`: `ok` (battery frames within `stale_ms`), `no_battery_frames` (CAN traffic but no 0x292/0x352: probably the wrong bus), `no_traffic` (nothing received: wiring, or the car is asleep). "Device unreachable" is shown by the page when the request itself fails.
 
 ## Hardware filters
 

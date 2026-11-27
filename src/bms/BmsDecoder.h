@@ -21,6 +21,11 @@ struct BmsState {
   Value nominalFullPackEnergyKWh;   // BMS_nominalFullPackEnergy
   Value nominalEnergyRemainingKWh;  // BMS_nominalEnergyRemaining
   Value energyBufferKWh;            // BMS_energyBuffer
+
+  // Any decoded battery frame (0x292 / 0x352), SNA or not. Used to tell
+  // "no CAN traffic" apart from "traffic but no battery frames (wrong bus?)".
+  uint32_t batteryFrames = 0;
+  uint32_t lastBatteryFrameMs = 0;  // meaningful only if batteryFrames > 0
 };
 
 class BmsDecoder {
