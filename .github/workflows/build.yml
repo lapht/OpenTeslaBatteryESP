@@ -5,6 +5,15 @@ on:
     branches: [main]
     tags: ["v*"]
   pull_request:
+  # Release without a terminal: Actions → build → Run workflow (on main) with a
+  # tag such as v0.1.0-alpha.1. Creates the same draft release as a tag push;
+  # the tag itself is created on main's commit when the draft is published.
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag, e.g. v0.1.0-alpha.1"
+        required: true
+        type: string
 
 # Least privilege: the jobs only read the repo and upload build artifacts.
 permissions:
@@ -55,10 +64,11 @@ jobs:
             .pio/build/${{ matrix.env }}/littlefs.bin
             dist/openteslabattery-${{ matrix.env }}.bin
 
-  # On a v* tag: draft GitHub release with the merged images and checksums.
-  # It stays a draft until a maintainer publishes it by hand.
+  # On a v* tag, or a manual run on main with a tag: draft GitHub release with
+  # the merged images and checksums. It stays a draft until a maintainer
+  # publishes it by hand.
   release:
-    if: startsWith(github.ref, 'refs/tags/v')
+    if: startsWith(github.ref, 'refs/tags/v') || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main')
     needs: [test-native, build-firmware]
     runs-on: ubuntu-latest
     permissions:
@@ -82,12 +92,23 @@ jobs:
       - name: Create draft release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAG: ${{ github.ref_name }}
+          TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
         run: |
+          if ! printf '%s' "$TAG" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.]+)?$'; then
+            echo "Invalid tag '$TAG' (expected vX.Y.Z or vX.Y.Z-suffix)"; exit 1
+          fi
+          # Publishing a draft made by a manual run creates the tag, which runs
+          # this job again: the release already exists, nothing to do.
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "Release $TAG already exists, skipping."; exit 0
+          fi
           # SemVer pre-release tags (v0.1.0-alpha.1) become GitHub pre-releases.
           pre=""
           case "$TAG" in *-*) pre="--prerelease" ;; esac
-          gh release create "$TAG" release/* $pre \
-            --repo "$GITHUB_REPOSITORY" --draft --verify-tag \
+          # A tag push must point at an existing tag; a manual run targets this commit.
+          where="--verify-tag"
+          [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ] && where="--target $GITHUB_SHA"
+          gh release create "$TAG" release/* $pre $where \
+            --repo "$GITHUB_REPOSITORY" --draft \
             --title "OpenTeslaBatteryESP $TAG" \
             --notes-file .github/release-notes.md

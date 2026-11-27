@@ -56,7 +56,7 @@ python3 tools/merge_bin.py .pio/build/esp32dev/flash_layout.json dist/openteslab
 - Fill in `.github/pull_request_template.md`. Tick only what you actually ran.
 - CI (`.github/workflows/build.yml`: native tests + both firmware builds + merged images) must be green before merge. The maintainer allows Claude to merge its own PRs once CI is green (merge commit, not squash). Fix red CI at the root cause; never skip or disable a test.
 - Issues that need a real car or hardware (bench test, validation, measurements) cannot be closed from code alone: implement what you can, comment what is left, keep the issue open.
-- Releases: pushing a `v*` tag makes CI create a **draft** release with merged images and `SHA256SUMS.txt`. Only the maintainer publishes it; publishing triggers the Pages deploy that updates browser flashing.
+- Releases: pushing a `v*` tag, or running the `build` workflow manually on `main` with a `tag` input, makes CI create a **draft** release with merged images and `SHA256SUMS.txt` (pre-release if the tag has a suffix). Cloud sessions cannot push tags (403): use the manual run. Only the maintainer publishes it; publishing triggers the Pages deploy that updates browser flashing.
 - GitHub Actions are pinned by commit SHA with the version in a comment; workflows default to `contents: read` and grant more only per job.
 
 ## Layout
