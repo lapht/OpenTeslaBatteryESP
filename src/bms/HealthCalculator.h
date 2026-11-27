@@ -7,7 +7,7 @@
 
 struct Health {
   bool valid = false;
-  float sohPct = 0;          // nominalFullPack / beginningOfLife * 100
+  float sohPct = 0;          // nominalFullPack / beginningOfLife * 100, buffer not subtracted (docs/battery-health.md)
   float degradationPct = 0;  // 100 - SOH
   float originalKWh = 0;
   float currentKWh = 0;
