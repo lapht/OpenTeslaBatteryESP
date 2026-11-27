@@ -107,6 +107,7 @@ bool WebUi::begin(Snapshot snapshot) {
     c["received"] = can.received;
     c["missed"] = can.missed;
     c["bus_errors"] = can.busErrors;
+    c["hw_filter"] = can.filtered;
     addAge(c, "last_frame_age_ms", can.received, can.lastFrameMs, now);
     c["battery_frames"] = bms.batteryFrames;
     addAge(c, "last_battery_frame_age_ms", bms.batteryFrames, bms.lastBatteryFrameMs, now);
