@@ -1,6 +1,15 @@
 # OpenTeslaBatteryESP
 
-**Site:** https://lapht.github.io/OpenTeslaBatteryESP/
+**Check your Tesla Model 3/Y battery health with a cheap ESP32.** Listen-only, no app, no cloud, open source.
+
+[![build](https://github.com/lapht/OpenTeslaBatteryESP/actions/workflows/build.yml/badge.svg)](https://github.com/lapht/OpenTeslaBatteryESP/actions/workflows/build.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![Status: not validated on a car](https://img.shields.io/badge/status-not%20validated%20on%20a%20car-orange.svg)](docs/validation.md)
+[![Site](https://img.shields.io/badge/site-lapht.github.io-blue.svg)](https://lapht.github.io/OpenTeslaBatteryESP/)
+
+<p align="center"><img src="site/img/dashboard.png" width="260" alt="The device's web page on a phone, with demo data"><br><sub>The page served by the device. Demo data, not from a real car.</sub></p>
+
+**Site and browser flashing:** https://lapht.github.io/OpenTeslaBatteryESP/
 
 Open-source, **read-only** ESP32 firmware that listens to a Tesla's CAN bus, decodes the battery management system (BMS) frames and shows **battery health** (state of health, degradation, capacity) on a web page served by the ESP itself. Connect your phone to the ESP's WiFi and open the page. No app, no cloud, no Tesla account, and nothing is ever written to the bus.
 
@@ -82,6 +91,12 @@ The firmware runs the CAN controller in listen-only mode. It never transmits a f
 ## Disclaimer
 
 This is an independent project, not affiliated with or endorsed by Tesla, Inc. Tesla, Model 3, Model Y, Model S and Model X are trademarks of Tesla, Inc. Signal definitions come from community reverse engineering, and the values shown are **not** an official Tesla diagnosis. Use at your own risk, and unplug the device after use so it does not keep the car awake and drain the 12 V battery. See [docs/safety-and-legal.md](docs/safety-and-legal.md).
+
+## Help wanted
+
+Have a Model 3 or Model Y and 20 € of parts? The most useful contribution right now is a [car validation report](https://github.com/lapht/OpenTeslaBatteryESP/issues/new?template=car_validation.yml): model, year and the values shown next to Scan My Tesla. Code contributions: see issues labelled [`good first issue`](https://github.com/lapht/OpenTeslaBatteryESP/labels/good%20first%20issue) and [`help wanted`](https://github.com/lapht/OpenTeslaBatteryESP/labels/help%20wanted), and [CONTRIBUTING.md](CONTRIBUTING.md).
+
+If the project is useful to you, a ⭐ on GitHub helps other owners find it.
 
 ## Credits
 
