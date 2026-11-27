@@ -2,6 +2,7 @@
 .vscode/*
 !.vscode/extensions.json
 build/
+dist/
 *.bin
 *.elf
 __pycache__/

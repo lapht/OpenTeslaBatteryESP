@@ -1,5 +1,16 @@
 # Getting started
 
+## Quick path: flash a release (no toolchain)
+
+Each [release](https://github.com/lapht/OpenTeslaBatteryESP/releases) has one complete image per board (`openteslabattery-esp32dev.bin`, `openteslabattery-esp32c6.bin`) to write at offset `0x0`:
+
+```bash
+pip install esptool
+esptool.py --chip esp32 --baud 460800 write_flash 0x0 openteslabattery-esp32dev.bin
+```
+
+Then go to [step 3](#3-check-the-serial-output) to read the WiFi password. Writing the full image erases the stored settings, so the device generates a new WiFi password.
+
 ## 1. Install the toolchain
 
 ```bash
@@ -23,7 +34,14 @@ pio run -e esp32c6 -t upload
 pio run -e esp32c6 -t uploadfs
 ```
 
-`upload` flashes the firmware, `uploadfs` flashes the web page from `data/` into LittleFS. Both are needed on first install.
+`upload` flashes the firmware, `uploadfs` flashes the web page from `data/` into LittleFS. Both are needed on first install. Neither touches the stored WiFi password.
+
+To build the same single image the releases ship (needs `pip install esptool`):
+
+```bash
+pio run -e esp32dev && pio run -e esp32dev -t buildfs && pio run -e esp32dev -t flashlayout
+python3 tools/merge_bin.py .pio/build/esp32dev/flash_layout.json dist/openteslabattery-esp32dev.bin
+```
 
 ## 3. Check the serial output
 

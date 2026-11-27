@@ -3,6 +3,7 @@ name: build
 on:
   push:
     branches: [main]
+    tags: ["v*"]
   pull_request:
 
 # Least privilege: the jobs only read the repo and upload build artifacts.
@@ -39,12 +40,51 @@ jobs:
         with:
           path: ~/.platformio
           key: pio-${{ matrix.env }}-${{ hashFiles('platformio.ini') }}
-      - run: pip install platformio==6.2.0
+      - run: pip install platformio==6.2.0 esptool==4.8.1
       - run: pio run -e ${{ matrix.env }}
       - run: pio run -e ${{ matrix.env }} -t buildfs
+      # One image with bootloader + partitions + app + LittleFS, flashable at 0x0
+      # (esptool or ESP Web Tools). Built on every run so a broken layout shows up in PRs.
+      - run: pio run -e ${{ matrix.env }} -t flashlayout
+      - run: python tools/merge_bin.py .pio/build/${{ matrix.env }}/flash_layout.json dist/openteslabattery-${{ matrix.env }}.bin
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: firmware-${{ matrix.env }}
           path: |
             .pio/build/${{ matrix.env }}/firmware.bin
             .pio/build/${{ matrix.env }}/littlefs.bin
+            dist/openteslabattery-${{ matrix.env }}.bin
+
+  # On a v* tag: draft GitHub release with the merged images and checksums.
+  # It stays a draft until a maintainer publishes it by hand.
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [test-native, build-firmware]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write  # create the draft release and upload assets
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+        with:
+          path: artifacts
+      - name: Collect assets and checksums
+        run: |
+          mkdir -p release
+          find artifacts -type f | sort
+          for env in esp32dev esp32c6; do
+            cp "$(find "artifacts/firmware-$env" -name "openteslabattery-$env.bin")" release/
+          done
+          (cd release && sha256sum *.bin > SHA256SUMS.txt)
+          cat release/SHA256SUMS.txt
+      - name: Create draft release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          gh release create "$TAG" release/* \
+            --repo "$GITHUB_REPOSITORY" --draft --verify-tag \
+            --title "OpenTeslaBatteryESP $TAG" \
+            --notes-file .github/release-notes.md
