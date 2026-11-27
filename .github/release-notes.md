@@ -1,5 +1,6 @@
 > **Read-only, community reverse-engineered data. Not Tesla's official battery test. Not affiliated with Tesla, Inc.**
 > Check the README for which signals have been validated on a real car.
+> **Pre-releases** (`-alpha`, `-beta`) are for bench testing and early testers: the battery values have **not** been validated on a car yet.
 
 ## Files
 

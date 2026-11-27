@@ -38,7 +38,9 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          tag=$(gh release view --repo "$GITHUB_REPOSITORY" --json tagName --jq .tagName 2>/dev/null || true)
+          # Newest published release, pre-releases included (gh release view would skip them).
+          tag=$(gh release list --repo "$GITHUB_REPOSITORY" --exclude-drafts --limit 1 \
+            --json tagName --jq '.[0].tagName // empty' 2>/dev/null || true)
           if [ -z "$tag" ]; then
             echo "No published release yet: the site explains how to build from source."
             exit 0

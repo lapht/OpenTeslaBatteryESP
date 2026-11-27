@@ -84,7 +84,10 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAG: ${{ github.ref_name }}
         run: |
-          gh release create "$TAG" release/* \
+          # SemVer pre-release tags (v0.1.0-alpha.1) become GitHub pre-releases.
+          pre=""
+          case "$TAG" in *-*) pre="--prerelease" ;; esac
+          gh release create "$TAG" release/* $pre \
             --repo "$GITHUB_REPOSITORY" --draft --verify-tag \
             --title "OpenTeslaBatteryESP $TAG" \
             --notes-file .github/release-notes.md
