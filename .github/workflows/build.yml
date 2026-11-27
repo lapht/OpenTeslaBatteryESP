@@ -5,15 +5,21 @@ on:
     branches: [main]
   pull_request:
 
+# Least privilege: the jobs only read the repo and upload build artifacts.
+permissions:
+  contents: read
+
 jobs:
   test-native:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
         with:
           python-version: "3.12"
-      - run: pip install platformio
+      - run: pip install platformio==6.2.0
       - run: pio test -e native
 
   build-firmware:
@@ -23,18 +29,20 @@ jobs:
       matrix:
         env: [esp32dev, esp32c6]
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
         with:
           python-version: "3.12"
-      - uses: actions/cache@v4
+      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
           path: ~/.platformio
           key: pio-${{ matrix.env }}-${{ hashFiles('platformio.ini') }}
-      - run: pip install platformio
+      - run: pip install platformio==6.2.0
       - run: pio run -e ${{ matrix.env }}
       - run: pio run -e ${{ matrix.env }} -t buildfs
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: firmware-${{ matrix.env }}
           path: |
