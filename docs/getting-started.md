@@ -11,6 +11,8 @@ esptool.py --chip esp32 --baud 460800 write_flash 0x0 openteslabattery-esp32dev.
 
 Then join the WiFi `OpenTeslaBattery-XXXX` with password `teslabattery` (see [step 5](#5-open-the-page)). Release binaries always use this public default: build from source to set your own.
 
+Versions with a suffix (`v0.1.0-alpha.1`) are **pre-releases**: they build and pass the unit tests, but the battery values are not validated on a car yet. The project site's browser flashing installs the newest published release, pre-releases included.
+
 ## 1. Install the toolchain
 
 ```bash
