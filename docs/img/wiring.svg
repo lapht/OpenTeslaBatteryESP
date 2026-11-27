@@ -1,0 +1,166 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 920" width="1280" height="920" font-family="Helvetica, Arial, sans-serif">
+  <defs>
+    <style>
+      .box{fill:#f7f8fa;stroke:#2b2f36;stroke-width:2;rx:10}
+      .title{font-size:17px;font-weight:700;fill:#14161b}
+      .sub{font-size:13px;fill:#5d6475}
+      .pin{font-size:13px;fill:#14161b}
+      .pinlbl{font-size:12px;fill:#14161b;font-weight:600}
+      .note{font-size:13px;fill:#14161b}
+      .warn{font-size:13px;fill:#a33a00;font-weight:600}
+      .w{fill:none;stroke-width:4;stroke-linecap:round;stroke-linejoin:round}
+      .red{stroke:#d7263d}.blk{stroke:#222}.yel{stroke:#e0a800}.grn{stroke:#1f9e4a}.org{stroke:#f08a24}.blu{stroke:#2f6fde}.pur{stroke:#8a4fd8}
+      .dot{fill:#2b2f36}
+      .hole{fill:#fff;stroke:#2b2f36;stroke-width:1.5}
+      .used{stroke-width:3}
+    </style>
+  </defs>
+  <rect width="1280" height="920" fill="#ffffff"/>
+  <text x="40" y="44" font-size="24" font-weight="700" fill="#14161b">OpenTeslaBatteryESP — wiring (Option A: OBD-II port X181)</text>
+  <text x="40" y="68" class="sub">Model 3/Y EU 2019+ per Tesla bulletin CD-20-17-001. Whether battery frames (0x292/0x352) are on this bus is NOT verified yet — see Option B.</text>
+
+  <!-- OBD-II socket face -->
+  <rect x="40" y="100" width="300" height="300" class="box"/>
+  <text x="58" y="128" class="title">Car: OBD-II socket X181</text>
+  <text x="58" y="148" class="sub">LH footwell, under the dash (J1962)</text>
+  <text x="58" y="164" class="sub">front view — check numbers molded on it</text>
+  <path d="M66 180 h248 l-18 118 h-212 z" fill="#e9ecf1" stroke="#2b2f36" stroke-width="2"/>
+  <g class="pin">
+    <circle cx="90" cy="210" r="9" class="hole"/>
+    <text x="90" y="236" font-size="11" text-anchor="middle">1</text>
+    <circle cx="116" cy="210" r="9" class="hole"/>
+    <text x="116" y="236" font-size="11" text-anchor="middle">2</text>
+    <circle cx="142" cy="210" r="9" class="hole"/>
+    <text x="142" y="236" font-size="11" text-anchor="middle">3</text>
+    <circle cx="168" cy="210" r="9" class="hole" style="fill:#222"/>
+    <text x="168" y="236" font-size="11" text-anchor="middle" font-weight="700">4</text>
+    <circle cx="194" cy="210" r="9" class="hole" style="fill:#222"/>
+    <text x="194" y="236" font-size="11" text-anchor="middle" font-weight="700">5</text>
+    <circle cx="220" cy="210" r="9" class="hole" style="fill:#e0a800"/>
+    <text x="220" y="236" font-size="11" text-anchor="middle" font-weight="700">6</text>
+    <circle cx="246" cy="210" r="9" class="hole"/>
+    <text x="246" y="236" font-size="11" text-anchor="middle">7</text>
+    <circle cx="272" cy="210" r="9" class="hole"/>
+    <text x="272" y="236" font-size="11" text-anchor="middle">8</text>
+    <circle cx="103" cy="262" r="9" class="hole"/>
+    <text x="103" y="288" font-size="11" text-anchor="middle">9</text>
+    <circle cx="129" cy="262" r="9" class="hole"/>
+    <text x="129" y="288" font-size="11" text-anchor="middle">10</text>
+    <circle cx="155" cy="262" r="9" class="hole"/>
+    <text x="155" y="288" font-size="11" text-anchor="middle">11</text>
+    <circle cx="181" cy="262" r="9" class="hole"/>
+    <text x="181" y="288" font-size="11" text-anchor="middle">12</text>
+    <circle cx="207" cy="262" r="9" class="hole"/>
+    <text x="207" y="288" font-size="11" text-anchor="middle">13</text>
+    <circle cx="233" cy="262" r="9" class="hole" style="fill:#1f9e4a"/>
+    <text x="233" y="288" font-size="11" text-anchor="middle" font-weight="700">14</text>
+    <circle cx="259" cy="262" r="9" class="hole"/>
+    <text x="259" y="288" font-size="11" text-anchor="middle">15</text>
+    <circle cx="285" cy="262" r="9" class="hole" style="fill:#d7263d"/>
+    <text x="285" y="288" font-size="11" text-anchor="middle" font-weight="700">16</text>
+  </g>
+  <text x="58" y="326" class="note">4, 5 = GND · 6 = CAN-H · 14 = CAN-L</text>
+  <text x="58" y="346" class="note">CAN 500 kbit/s</text>
+  <text x="58" y="366" class="note">16 = +12 V only while car is awake,</text>
+  <text x="58" y="384" class="note">max 1 A (2019–Apr 2024 cars)</text>
+
+  <!-- OBD plug pigtail -->
+  <rect x="400" y="130" width="150" height="190" class="box"/>
+  <text x="414" y="156" class="title">OBD-II plug</text>
+  <text x="414" y="174" class="sub">male, open-wire pigtail</text>
+  <g class="pinlbl">
+    <text x="414" y="208">16  +12 V</text>
+    <text x="414" y="238">4/5 GND</text>
+    <text x="414" y="268">6   CAN-H</text>
+    <text x="414" y="298">14  CAN-L</text>
+  </g>
+  <path d="M340 225 H400" class="w blk" stroke-width="10" opacity=".25"/>
+  <text x="346" y="215" class="sub">plugs in</text>
+
+  <!-- Fuse -->
+  <rect x="610" y="180" width="110" height="56" class="box"/>
+  <text x="624" y="204" class="title">Fuse 1 A</text>
+  <text x="624" y="222" class="sub">inline holder</text>
+
+  <!-- Buck -->
+  <rect x="780" y="140" width="170" height="130" class="box"/>
+  <text x="794" y="166" class="title">DC-DC buck</text>
+  <text x="794" y="184" class="sub">12 V → 5 V, ≥1 A</text>
+  <text x="794" y="214" class="pinlbl">IN+</text><text x="794" y="250" class="pinlbl">IN−</text>
+  <text x="906" y="214" class="pinlbl">OUT+</text><text x="906" y="250" class="pinlbl">OUT−</text>
+
+  <!-- ESP32 -->
+  <rect x="1020" y="110" width="220" height="460" class="box"/>
+  <text x="1036" y="138" class="title">ESP32 DevKitC</text>
+  <text x="1036" y="156" class="sub">(or ESP32-C6 DevKitC-1)</text>
+  <g class="pinlbl">
+    <text x="1036" y="214">5V</text>
+    <text x="1036" y="250">GND</text>
+    <text x="1036" y="416">3V3</text>
+    <text x="1036" y="448">GND</text>
+    <text x="1036" y="480">GPIO5  → CAN TX</text>
+    <text x="1036" y="512">GPIO4  ← CAN RX</text>
+  </g>
+  <text x="1036" y="552" class="sub">USB: flashing / serial log</text>
+
+  <!-- SN65HVD230 -->
+  <rect x="610" y="350" width="230" height="220" class="box"/>
+  <text x="624" y="376" class="title">SN65HVD230 module</text>
+  <text x="624" y="394" class="sub">3.3 V CAN transceiver</text>
+  <g class="pinlbl">
+    <text x="624" y="448">CANH</text>
+    <text x="624" y="480">CANL</text>
+    <text x="772" y="416">3V3</text>
+    <text x="772" y="448">GND</text>
+    <text x="772" y="480">CTX</text>
+    <text x="772" y="512">CRX</text>
+  </g>
+  <text x="624" y="552" class="warn">120 Ω on board? remove it</text>
+
+  <!-- wires -->
+  <!-- +12V: plug -> fuse -> buck IN+ -->
+  <path d="M550 204 H580 V208 H610" class="w red"/>
+  <path d="M720 208 H780" class="w red"/>
+  <!-- GND plug -> buck IN- -->
+  <path d="M550 234 H570 V300 H760 V246 H780" class="w blk"/>
+  <!-- buck OUT+ -> ESP 5V -->
+  <path d="M950 210 H1020" class="w red"/>
+  <!-- buck OUT- -> ESP GND -->
+  <path d="M950 246 H1020" class="w blk"/>
+  <!-- CAN-H / CAN-L -->
+  <path d="M550 264 H565 V444 H610" class="w yel"/>
+  <path d="M550 294 H555 V476 H610" class="w grn"/>
+  <!-- transceiver -> ESP -->
+  <path d="M840 412 H1020" class="w org"/>
+  <path d="M840 444 H1020" class="w blk"/>
+  <path d="M840 476 H1020" class="w blu"/>
+  <path d="M840 508 H1020" class="w pur"/>
+  <text x="880" y="406" class="sub">3V3</text><text x="880" y="438" class="sub">GND</text>
+  <text x="860" y="470" class="sub">TX (idle in listen-only)</text><text x="880" y="502" class="sub">RX</text>
+
+  <!-- Option B -->
+  <rect x="40" y="610" width="580" height="270" class="box"/>
+  <text x="58" y="638" class="title">Option B — center console connector</text>
+  <text x="378" y="638" class="sub">(if Option A shows no 0x292/0x352)</text>
+  <text x="58" y="664" class="note">Connector at the base of the center console, reached from the rear seat.</text>
+  <text x="58" y="686" class="note">Model 3 2019+ / Model Y: 26-pin. Model 3 before 2019: 20-pin.</text>
+  <text x="58" y="708" class="note">Use a "Tesla Model 3/Y 26-pin to OBD-II" adapter: it exposes the</text>
+  <text x="58" y="730" class="note">same OBD-II plug as above, so the rest of the wiring does not change.</text>
+  <text x="58" y="758" class="note">Community sources: Vehicle CAN on pins 18/19 → OBD-II 6 (H) / 14 (L),</text>
+  <text x="58" y="780" class="note">power on pin 1 → OBD-II 16.</text>
+  <text x="58" y="810" class="warn">Unverified community pinout. Check with a multimeter + sniffer.</text>
+  <text x="58" y="832" class="warn">Car off before connecting or disconnecting the console connector.</text>
+  <text x="58" y="862" class="sub">Sources: teslatap.com, docs.autopi.io (not official Tesla docs)</text>
+
+  <!-- Notes -->
+  <rect x="660" y="610" width="580" height="270" class="box"/>
+  <text x="678" y="638" class="title">Notes</text>
+  <text x="678" y="666" class="note">• First test: power the ESP from a USB power bank, connect only</text>
+  <text x="678" y="686" class="note">   CAN-H, CAN-L and GND. Add the 12 V buck later.</text>
+  <text x="678" y="714" class="note">• All grounds are common: OBD 4/5, buck IN−/OUT−, ESP GND, transceiver GND.</text>
+  <text x="678" y="742" class="note">• Firmware is listen-only: the transceiver never drives the bus.</text>
+  <text x="678" y="770" class="note">• Never connect 12 V to the ESP or the transceiver directly.</text>
+  <text x="678" y="798" class="note">• Twist CAN-H/CAN-L together, keep the stub short (&lt; 30 cm).</text>
+  <text x="678" y="826" class="note">• GPIO 4/5 are defaults (platformio.ini), change if needed.</text>
+  <text x="678" y="862" class="sub">Pinout X181: Tesla service bulletin CD-20-17-001 R4 (Aug 2024)</text>
+</svg>
