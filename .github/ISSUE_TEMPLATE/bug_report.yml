@@ -1,0 +1,33 @@
+name: Bug report
+description: Something does not work as documented
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you did, what you expected, what you got.
+    validations:
+      required: true
+  - type: input
+    id: board
+    attributes:
+      label: Board and transceiver
+      placeholder: ESP32 DevKitC + SN65HVD230
+    validations:
+      required: true
+  - type: input
+    id: car
+    attributes:
+      label: Car
+      placeholder: Model 3 LR AWD 2021, software 2024.x
+  - type: input
+    id: version
+    attributes:
+      label: Firmware version / commit
+  - type: textarea
+    id: logs
+    attributes:
+      label: Serial log
+      description: Output of `pio device monitor`. Remove your VIN if it appears.
+      render: text

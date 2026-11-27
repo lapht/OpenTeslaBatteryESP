@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OpenTeslaBattery</title>
+<style>
+  :root { --bg:#0f1115; --card:#181b22; --fg:#e8eaf0; --muted:#8a91a3; --ok:#3ecf8e; --warn:#f5a524; --bad:#f2555a; }
+  @media (prefers-color-scheme: light) { :root { --bg:#f5f6f8; --card:#fff; --fg:#14161b; --muted:#5d6475; } }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif; background:var(--bg); color:var(--fg); }
+  main { max-width:480px; margin:0 auto; padding:16px; }
+  h1 { font-size:1.1rem; font-weight:600; margin:8px 0 16px; }
+  .card { background:var(--card); border-radius:14px; padding:16px; margin-bottom:12px; }
+  .big { font-size:3rem; font-weight:700; line-height:1; }
+  .label { color:var(--muted); font-size:.85rem; margin-bottom:6px; }
+  .grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .val { font-size:1.4rem; font-weight:600; }
+  .status { font-size:.8rem; color:var(--muted); }
+  .dot { display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:6px; background:var(--bad); }
+  .dot.ok { background:var(--ok); }
+  footer { color:var(--muted); font-size:.75rem; margin-top:16px; line-height:1.4; }
+</style>
+</head>
+<body>
+<main>
+  <h1>OpenTeslaBattery</h1>
+  <div class="card">
+    <div class="label">State of health</div>
+    <div class="big" id="soh">--</div>
+    <div class="status" id="deg">Waiting for BMS frames (0x292, 0x352)...</div>
+  </div>
+  <div class="grid">
+    <div class="card"><div class="label">Original capacity</div><div class="val" id="orig">--</div></div>
+    <div class="card"><div class="label">Current full pack</div><div class="val" id="cur">--</div></div>
+    <div class="card"><div class="label">Energy remaining</div><div class="val" id="rem">--</div></div>
+    <div class="card"><div class="label">Buffer</div><div class="val" id="buf">--</div></div>
+  </div>
+  <div class="card status"><span class="dot" id="dot"></span><span id="can">No data</span></div>
+  <footer>Read-only, community reverse-engineered data. Not Tesla's official battery test.
+  Not affiliated with Tesla, Inc. Unplug the device after use to avoid draining the 12 V battery.</footer>
+</main>
+<script>
+const $ = id => document.getElementById(id);
+const kwh = v => v == null ? '--' : v.toFixed(1) + ' kWh';
+async function tick() {
+  try {
+    const r = await fetch('/api/status', { cache: 'no-store' });
+    const d = await r.json();
+    if (d.health.valid) {
+      $('soh').textContent = d.health.soh_pct.toFixed(1) + '%';
+      $('deg').textContent = 'Degradation ' + d.health.degradation_pct.toFixed(1) + '%';
+    }
+    $('orig').textContent = kwh(d.bms.beginning_of_life_kwh);
+    $('cur').textContent = kwh(d.bms.nominal_full_pack_kwh);
+    $('rem').textContent = kwh(d.bms.nominal_remaining_kwh);
+    $('buf').textContent = kwh(d.bms.energy_buffer_kwh);
+    $('can').textContent = `CAN rx ${d.can.received} · missed ${d.can.missed} · errors ${d.can.bus_errors}`;
+    $('dot').classList.toggle('ok', d.can.received > 0);
+  } catch (e) {
+    $('can').textContent = 'Device not reachable';
+    $('dot').classList.remove('ok');
+  }
+}
+tick(); setInterval(tick, 2000);
+</script>
+</body>
+</html>
