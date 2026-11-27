@@ -72,6 +72,7 @@ Settings live in `src/config.h` and can be overridden per environment through `b
 | `OTB_MDNS_NAME` | `tesla` | mDNS name, reachable as `<name>.local` |
 | `OTB_CAPTIVE_PORTAL` | 1 | 1 answers every DNS name and redirects to the page, 0 answers only `OTB_DNS_NAME` |
 | `OTB_STALE_MS` | 5000 | Max age of a value used for SOH |
+| `OTB_CAN_HW_FILTER` | 1 | Hardware filter for the battery IDs while they arrive (see [architecture.md](architecture.md#hardware-filters)) |
 | `OTB_SERIAL_SNIFFER` | 0 | 1 prints every frame to serial |
 
 ## Running the tests

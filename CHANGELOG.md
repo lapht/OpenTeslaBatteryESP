@@ -13,6 +13,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versio
 - Friendly URL `http://tesla.lan/` via a DNS server on the SoftAP, captive portal redirect so phones open the page on their own, mDNS `tesla.local`.
 - Per-device SoftAP: SSID `OpenTeslaBattery-XXXX` from the MAC, random password generated on first boot, stored in NVS and printed on serial (no shared default password).
 - Web page shows stale values greyed with their age, and tells apart "device unreachable", "no CAN traffic" and "traffic but no battery frames". `/api/status` adds `bms_age_ms`, `link`, `stale_ms` and frame ages.
+- TWAI hardware acceptance filter for the battery IDs, narrowed while battery frames arrive and opened again when they stop (`OTB_CAN_HW_FILTER`).
 - Serial sniffer mode and `tools/can_log_summary.py`.
 - Host unit tests, GitHub Actions CI.
 - Documentation, issue and PR templates.

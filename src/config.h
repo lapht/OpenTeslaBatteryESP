@@ -47,6 +47,13 @@ static_assert(sizeof(OTB_AP_PASSWORD) - 1 >= 8 && sizeof(OTB_AP_PASSWORD) - 1 <=
 #define OTB_STALE_MS 5000
 #endif
 
+// 1 = use the TWAI hardware acceptance filter for the battery IDs while battery
+// frames arrive, to keep CPU load low on a busy bus. It opens automatically when
+// they stop, so the page can still diagnose a wrong bus. Forced off in sniffer mode.
+#ifndef OTB_CAN_HW_FILTER
+#define OTB_CAN_HW_FILTER 1
+#endif
+
 // Print every received frame to serial (sniffer mode, useful to verify the bus).
 #ifndef OTB_SERIAL_SNIFFER
 #define OTB_SERIAL_SNIFFER 0
