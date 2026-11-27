@@ -25,7 +25,7 @@ pio run -e esp32dev && pio run -e esp32dev -t buildfs && pio run -e esp32dev -t 
 python3 tools/merge_bin.py .pio/build/esp32dev/flash_layout.json dist/openteslabattery-esp32dev.bin
 ```
 
-CI builds these on every run and, on a `v*` tag, attaches them with `SHA256SUMS.txt` to a draft release (marked pre-release when the tag has a suffix, e.g. `v0.1.0-alpha.1`). Publishing it redeploys the site with the new images.
+CI builds these on every run and, on a `v*` tag, attaches them with `SHA256SUMS.txt` to a draft release (marked pre-release when the tag has a suffix, e.g. `v0.1.0-alpha.1`). Publishing it redeploys the site with the new images. Without a terminal: Actions → build → Run workflow on `main` with the tag name; the tag is created when the draft is published.
 
 ## social_preview.html
 
