@@ -3,7 +3,7 @@
 #include "../can/CanReader.h"
 #include "../bms/HealthCalculator.h"
 
-// SoftAP + async HTTP server.
+// SoftAP + async HTTP server + DNS (friendly name / captive portal) + mDNS.
 //   GET /            -> data/index.html (LittleFS)
 //   GET /api/status  -> JSON snapshot (health, raw BMS values, CAN stats)
 class WebUi {

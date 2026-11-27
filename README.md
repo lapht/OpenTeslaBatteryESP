@@ -16,6 +16,7 @@ Commercial "Tesla boxes" cost hundreds of euros and promise unlocks that mostly 
 | Decode 0x292 (beginning-of-life energy) and 0x352 (nominal full pack energy) | implemented, untested on car |
 | SOH and degradation | implemented |
 | WiFi SoftAP + mobile web page + `/api/status` JSON | implemented |
+| Friendly URL `http://tesla.lan/`, captive portal, mDNS `tesla.local` | implemented, untested on device |
 | Serial CAN sniffer + log summary tool | implemented |
 | Brick voltages, spread, range, cycles, live charts | planned (v0.2) |
 | Deep sleep, history | planned (v0.4) |
@@ -54,7 +55,7 @@ pio run -e esp32dev -t uploadfs    # web page (LittleFS)
 pio device monitor
 ```
 
-Then join the WiFi network `OpenTeslaBattery` (default password `teslabattery`, change it in `src/config.h`) and open `http://192.168.4.1/`.
+Then join the WiFi network `OpenTeslaBattery` (default password `teslabattery`, change it in `src/config.h`) and open **`http://tesla.lan/`** (or `http://192.168.4.1/`). Most phones open the page on their own as a "sign in to network" screen. See [docs/web-access.md](docs/web-access.md).
 
 Full guide: [docs/getting-started.md](docs/getting-started.md).
 
@@ -63,6 +64,7 @@ Full guide: [docs/getting-started.md](docs/getting-started.md).
 - [Getting started](docs/getting-started.md): build, flash, first connection
 - [Hardware](docs/hardware.md): bill of materials
 - [Wiring](docs/wiring.md): transceiver and diagnostic port
+- [Web access](docs/web-access.md): `tesla.lan`, captive portal, mDNS
 - [Architecture](docs/architecture.md): firmware design
 - [CAN mapping](docs/can-mapping.md): decoded signals and their sources
 - [Battery health](docs/battery-health.md): formulas and limitations

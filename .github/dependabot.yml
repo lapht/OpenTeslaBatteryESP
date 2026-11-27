@@ -1,0 +1,11 @@
+# Keeps the SHA-pinned GitHub Actions up to date.
+# PlatformIO libraries are not supported by Dependabot: bump them by hand in platformio.ini.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    groups:
+      actions:
+        patterns: ["*"]
